@@ -1,0 +1,456 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Umi</title><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}[hidden]{display:none!important}</style></head><body><title>Umi Outlet Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Shippori+Mincho+B1:wght@500;700&display=swap">
+<style id="app-style">
+/* v18. Colours: dark navy ground, ocean-blue band and accents, light-blue headings. Layout: a deep-sea header band with the 海 mark, then one section at a time (hash tabs), tables and cards on a cool paper ground. Sections: roster, upselling, training, tasks. Roster: green = working, red = OFF (centred) and VELA lines. */
+:root{
+  --bg:#071722; --surface:#0E2535; --ink:#E6F2FA; --muted:#8FB3C9; --line:#1D4058;
+  --accent:#3AA0D8; --accent-ink:#04131C; --soft:#123650; --lblue:#A8D8F2;
+  --band:#0D5A87; --band-ink:#EAF6FD; --band-mute:#A8D8F2;
+  --ok:#5FD3A0; --pend:#E8C25A; --warn:#F0955E; --red:#FF7B72;
+  --display:'Shippori Mincho B1','Noto Serif JP',Georgia,serif;
+  --body:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding-bottom:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--band);z-index:10}
+h1,h2,h3,p,ul,ol,dl,dd{margin:0}
+ul,ol{padding:0;list-style:none}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.band{background:var(--band);color:var(--band-ink)}
+.bandin{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:20px 8px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.kanji{font:700 44px/1 var(--display);width:64px;height:64px;display:grid;place-items:center;border:1px solid var(--band-mute);border-radius:50%;flex:none}
+.brand h1{font:700 30px/1.1 var(--display);letter-spacing:.02em}
+.brand p{color:var(--band-mute);font-size:13px;margin-top:2px}
+.bandr{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ro{color:var(--band-mute);font-size:13px}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-top:10px;scrollbar-width:thin}
+.tabs a{color:var(--band-mute);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;font-weight:500}
+.tabs a[aria-current="page"]{color:var(--band-ink);border-bottom-color:var(--band-ink)}
+.tabs a:hover{color:var(--band-ink)}
+.main{padding-block:28px 56px;display:flex;flex-direction:column;gap:22px}
+.sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sechead h2{font:700 26px/1.2 var(--display);text-wrap:balance}
+.sechead p{color:var(--muted);margin-top:2px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.band .btn{background:transparent;color:var(--band-ink);border-color:var(--band-mute)}
+.band .btn.primary{background:var(--band-ink);color:var(--band);border-color:var(--band-ink)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:4px 10px;font-size:13px}
+.btn.del{color:var(--warn)}
+.chip{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;background:var(--soft);color:var(--accent);white-space:nowrap}
+.band .chip.sample{background:#E6C16A;color:#3A2A00}
+.stats b,.sechead h2,.tr .dt b{color:var(--lblue)}
+.chip.up{background:var(--soft);color:var(--accent)}
+.chip.past{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.chip.today{background:var(--accent);color:var(--accent-ink)}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+thead th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--lblue);font-weight:600;background:var(--soft);white-space:nowrap}
+thead th small{display:block;font:400 12px var(--mono);letter-spacing:0;text-transform:none}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.roster td.sh{font:400 13px/1.5 var(--mono);white-space:pre}
+.roster textarea.in{min-width:130px;resize:vertical;font:400 13px/1.4 var(--mono)}
+.roster td.on{color:var(--ok);font-weight:500}
+.roster td.sh .vela{color:var(--red);font-weight:600}
+.roster td.off{color:var(--red);font-weight:600;letter-spacing:.04em}
+.roster th,.roster td{text-align:center;vertical-align:middle}
+.roster .tdy{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.roster td.who b{display:block}
+.roster td.who span{color:var(--muted);font-size:13px}
+.in{width:100%;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.roster .in{min-width:92px;font-family:var(--mono);font-size:13px}
+.roster td.who .in{min-width:120px;font-family:var(--body);font-size:14px}
+.fl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.stats>div{padding:14px 18px;display:flex;flex-direction:column;gap:2px;min-width:0;border-right:1px solid var(--line)}
+.stats>div:last-child{border-right:0}
+.stats b{font:700 26px/1.2 var(--display);overflow-wrap:anywhere}
+.stats span{color:var(--muted);font-size:13px}
+.bars{display:flex;flex-direction:column;gap:8px;padding:14px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-top:12px}
+.bars h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.bar{display:grid;grid-template-columns:110px 1fr 84px;gap:10px;align-items:center;font-size:14px}
+.bar i{display:block;height:10px;border-radius:5px;background:var(--accent)}
+.bar span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar span:last-child{text-align:right;font:400 13px var(--mono)}
+.tlist{display:flex;flex-direction:column;gap:10px}
+.tr{display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:start;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.tr .dt{text-align:center;border-right:1px solid var(--line);padding-right:12px}
+.tr .dt b{display:block;font:700 28px/1 var(--display)}
+.tr .dt span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.tr h3{font-size:17px;font-weight:600}
+.tr .m{font:400 13px var(--mono);color:var(--muted);margin-top:2px}
+.tr .n{margin-top:6px;color:var(--ink)}
+.tr .ed{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.chip.ok{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.chip.pend{background:color-mix(in srgb,var(--pend) 20%,transparent);color:var(--pend)}
+.tsheet td.dcell{white-space:nowrap;font-weight:600}
+.tsheet td.dcell small{display:block;font:400 12px var(--mono);color:var(--muted)}
+.tsheet td.tm{font:400 13px var(--mono);white-space:nowrap}
+.tsheet td.topic{font-weight:600;min-width:180px}
+.tsheet td.notes{color:var(--muted);min-width:160px}
+.tsheet td.stc{white-space:nowrap}
+.tsheet tr.tdone td.topic{color:var(--muted)}
+.tsheet .in{min-width:110px}
+.tsheet td .btn{margin-left:6px}
+.chip.bad{background:color-mix(in srgb,var(--red) 20%,transparent);color:var(--red)}
+.prog{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ok);border-radius:4px}
+.clist{display:flex;flex-direction:column;gap:8px}
+.ck{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.ck.now{border-color:var(--accent)}
+.ck .dt{text-align:center;border-right:1px solid var(--line);padding-right:12px}
+.ck .dt b{display:block;font:700 22px/1 var(--display);color:var(--lblue)}
+.ck .dt span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.ck .ctitle{min-width:0}
+.ck .ctitle b{display:block;font-weight:600}
+.ck .ctitle span{font-size:13px;color:var(--muted)}
+.ck.fin .ctitle b{text-decoration:line-through;text-decoration-color:var(--muted);color:var(--muted)}
+.ck .cact{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn.tick{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.tick.on{background:transparent;color:var(--ink);border-color:var(--line)}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;align-items:start}
+.col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.col h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px;padding-bottom:8px;border-bottom:3px solid var(--line)}
+.col.todo h3{border-bottom-color:var(--accent)}
+.col.pending h3{border-bottom-color:var(--pend)}
+.col.done h3{border-bottom-color:var(--ok)}
+.count{font:500 12px var(--mono);color:var(--muted)}
+.card{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card b{font-weight:600;overflow-wrap:anywhere}
+.card .m{font-size:13px;color:var(--muted)}
+.card .m .late{color:var(--warn);font-weight:600}
+.col.done .card b{text-decoration:line-through;text-decoration-color:var(--muted);color:var(--muted)}
+.card .ed{display:flex;flex-direction:column;gap:6px}
+.empty{color:var(--muted);font-size:14px;padding:8px 0}
+.msec{padding:18px 20px;border:1px solid var(--line);border-radius:10px;background:var(--surface);display:flex;flex-direction:column;gap:14px}
+.msec>h3{font:700 22px var(--display)}
+.mi{display:flex;align-items:baseline;gap:8px}
+.mi b{font-weight:600}
+.mi .lead{flex:1;border-bottom:1px dotted var(--muted);min-width:16px;transform:translateY(-4px)}
+.mi .pr{font:400 14px var(--mono)}
+.msec li>p{color:var(--muted);font-size:14px}
+.msec .ed{display:grid;grid-template-columns:1.2fr 2fr 90px auto;gap:8px;align-items:center}
+.menugrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.menugrid>*{min-width:0}
+.msec ul{display:flex;flex-direction:column;gap:12px}
+.kv{display:grid;grid-template-columns:minmax(120px,200px) 1fr;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.kv dt,.kv dd{padding:12px 16px;border-bottom:1px solid var(--line);min-width:0;overflow-wrap:anywhere}
+.kv dt{color:var(--muted);font-size:13px;letter-spacing:.04em;text-transform:uppercase;background:var(--soft)}
+.kv dd.ed,.kv dt.ed{display:flex;align-items:center;gap:8px}
+.kv>:nth-last-child(-n+2){border-bottom:0}
+.std{display:flex;flex-direction:column;gap:8px;padding:16px 20px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.std h3{font:700 20px var(--display);margin-bottom:4px}
+.std li{display:flex;gap:10px;align-items:baseline;padding-left:14px;position:relative}
+.std li::before{content:"";position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.std li .ed{display:flex;gap:8px;width:100%}
+.foot{color:var(--muted);font-size:13px;font-family:var(--mono)}
+.editbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--band);color:var(--band-ink);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));box-shadow:0 -4px 16px rgba(0,0,0,.18)}
+.editbar .btn{background:transparent;color:var(--band-ink);border-color:var(--band-mute)}
+.editbar .btn.primary{background:var(--band-ink);color:var(--band);border-color:var(--band-ink)}
+.editbar .acts{display:flex;gap:8px;flex-wrap:wrap}
+.editbar .st{font-size:14px}
+.pad-bar{padding-bottom:96px}
+@media (max-width:560px){
+  .brand h1{font-size:26px}
+  .kanji{width:52px;height:52px;font-size:34px}
+  .tr{grid-template-columns:52px 1fr}
+  .tr>.chip{grid-column:2;justify-self:start}
+  .bar{grid-template-columns:80px 1fr 76px}
+  .msec .ed{grid-template-columns:1fr 80px auto}
+  .msec .ed .in:nth-child(2){grid-column:1/-1;order:5}
+  .kv{grid-template-columns:1fr}
+  .kv dt{border-bottom:0;padding-bottom:4px}
+  .kv>:nth-last-child(2){border-bottom:1px solid var(--line)}
+}
+</style>
+<div id="app"></div>
+<script type="application/json" id="umi-data">{"sample":false,"meta":{"subtitle":"Outlet 1 · three-course à la carte","updated":"2026-11-09"},"roster":{"weekOf":"2026-11-07","staff":[{"name":"Dila","role":"Hostess","shifts":[" \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30","OFF"]},{"name":"Sanskar","role":"Team Member","shifts":[" \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30","OFF","OFF"," \n11:00 - 15:30\n18:00 - 22:30"]},{"name":"Fahumaan","role":"Team Member","shifts":["OFF","OFF","OFF","OFF"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"]},{"name":"Mifzal","role":"Team Member","shifts":["     VELA\n11:00 - 15:30\n18:00 - 22:30","     VELA\n11:00 - 15:30\n18:00 - 22:30","     VELA\n11:00 - 15:30\n18:00 - 22:30","     VELA\n11:00 - 15:30\n18:00 - 22:30","     VELA\n11:00 - 15:30\n18:00 - 22:30","     VELA\n11:00 - 15:30\n18:00 - 22:30","     VELA\n11:00 - 15:30\n18:00 - 22:30"]},{"name":"Zayan","role":"Team Member","shifts":[" \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"," \n11:00 - 15:30\n18:00 - 22:30"]}]},"upsell":[{"date":"2026-11-03","item":"LOBSTER","staff":"Sanskar","qty":"1","sales":"100"},{"date":"2026-11-06","item":"MONTELLIANA PROSECCO","staff":"Fahumaan","qty":"1","sales":"60"},{"date":"2026-11-08","item":"LOBSTER","staff":"Sanskar","qty":"1","sales":"100"},{"date":"2026-11-09","item":"ZENATO RIPASSA","staff":"Zayan","qty":"1","sales":"230"}],"trainMonth":"2026-11","trainings":[{"date":"2026-11-01","time":"11:30–12:00","topic":"Importance of Upselling & Methods","trainer":"","notes":"Service Etiquette","status":"completed"},{"date":"2026-11-02","time":"11:30–12:00","topic":"FIFO & FEFO","trainer":"","notes":"Stock & Inventory","status":"completed"},{"date":"2026-11-03","time":"11:30–12:00","topic":"Stock basics- Par levels & stock sheets","trainer":"","notes":"Stock & Inventory","status":"completed"},{"date":"2026-11-04","time":"11:30–12:00","topic":"Food refresher: Starters & Sushi","trainer":"","notes":"Food Refresher","status":"completed"},{"date":"2026-11-05","time":"11:30–12:00","topic":"Requisition & receiving stock - Material Control","trainer":"","notes":"Stock & Inventory","status":"completed"},{"date":"2026-11-06","time":"11:30–12:00","topic":"Drinks refresher: cocktails & mocktails","trainer":"","notes":"Drinks Refresher","status":"completed"},{"date":"2026-11-07","time":"11:30–12:00","topic":"Reading the guest: Anticipating needs. (Emotional Intelligence)","trainer":"","notes":"Service Etiquette","status":"completed"},{"date":"2026-11-08","time":"11:30–12:00","topic":"Bar stock counts, wastage & spillage","trainer":"","notes":"Stock & Inventory","status":"completed"},{"date":"2026-11-09","time":"11:30–12:00","topic":"Haccp Refresher","trainer":"","notes":"Service Etiquette","status":"completed"},{"date":"2026-11-10","time":"11:30–12:00","topic":"Food refresher: Maincourse","trainer":"","notes":"Food Refresher","status":"pending"},{"date":"2026-11-11","time":"11:30–12:00","topic":"Importance of kitchen-floor teamwork","trainer":"","notes":"Team & Personal Growth","status":"pending"},{"date":"2026-11-12","time":"11:30–12:00","topic":"Importance of Portion control & food cost","trainer":"","notes":"Stock & Inventory","status":"pending"},{"date":"2026-11-13","time":"11:30–12:00","topic":"Wine refresher - Wines & Food Pairing","trainer":"","notes":"Drinks Refresher","status":"pending"},{"date":"2026-11-14","time":"11:30–12:00","topic":"FIFO audit: chillers, store & bar","trainer":"","notes":"Practice & Review","status":"pending"},{"date":"2026-11-15","time":"11:30–12:00","topic":"Cultural awareness & dietary customs","trainer":"","notes":"Service Etiquette","status":"pending"},{"date":"2026-11-16","time":"11:30–12:00","topic":"Food refresher: Desserts","trainer":"","notes":"Food Refresher","status":"pending"},{"date":"2026-11-17","time":"11:30–12:00","topic":"Importance of Giving & receiving feedback","trainer":"","notes":"Team & Personal Growth","status":"pending"},{"date":"2026-11-18","time":"11:30–12:00","topic":"Stock variances: when counts don't match","trainer":"","notes":"Stock & Inventory","status":"pending"},{"date":"2026-11-19","time":"11:30–12:00","topic":"Section Control , Time Management","trainer":"","notes":"Service Etiquette","status":"pending"},{"date":"2026-11-20","time":"11:30–12:00","topic":"Drinks refresher: spirits & digestifs","trainer":"","notes":"Drinks Refresher","status":"pending"},{"date":"2026-11-21","time":"11:30–12:00","topic":"Menu quiz","trainer":"","notes":"Practice & Review","status":"pending"},{"date":"2026-11-22","time":"11:30–12:00","topic":"Special occasions & celebrations","trainer":"","notes":"Service Etiquette","status":"pending"},{"date":"2026-11-23","time":"11:30–12:00","topic":"Staying calm & positive under pressure","trainer":"","notes":"Team & Personal Growth","status":"pending"},{"date":"2026-11-24","time":"11:30–12:00","topic":"Presenting a dish or drink","trainer":"","notes":"Practice & Review","status":"pending"},{"date":"2026-11-25","time":"11:30–12:00","topic":"Describing dishes & drinks to guests","trainer":"","notes":"Service Etiquette","status":"pending"},{"date":"2026-11-26","time":"11:30–12:00","topic":"Leadership - lead by example","trainer":"","notes":"Team & Personal Growth","status":"pending"},{"date":"2026-11-27","time":"11:30–12:00","topic":"The farewell - Lasting impressions","trainer":"","notes":"Service Etiquette","status":"pending"},{"date":"2026-11-28","time":"11:30–12:00","topic":"Importance of communication","trainer":"","notes":"Team & Personal Growth","status":"pending"},{"date":"2026-11-29","time":"11:30–12:00","topic":"Handling Inventory","trainer":"","notes":"Practice & Review","status":"pending"},{"date":"2026-11-30","time":"11:30–12:00","topic":"Month review & assessment","trainer":"","notes":"Practice & Review","status":"pending"}],"tasks":[{"title":"Get Back The Deck Chair and Baby Chair In Varihura","owner":"","due":"2026-11-11","status":"todo"}],"menu":{"sections":[{"name":"Starters","items":[]},{"name":"Mains","items":[]},{"name":"Desserts","items":[]}]},"info":[{"label":"Opening hours","value":""},{"label":"Location","value":""},{"label":"Phone","value":""},{"label":"Dress code","value":""},{"label":"Seating","value":""}],"standards":[],"done":{"bottle|2026-11-02":true,"linen|2026-11-03":true,"floor|2026-11-04":true,"ose|2026-11-04":true}}</script>
+<script id="app-script">
+(function(){
+var DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var TABS=[['roster','Roster'],['upselling','Upselling'],['training','Training'],['tasks','Tasks']];
+var COLS=[['todo','To do'],['pending','Pending'],['done','Done']];
+var RESET=':root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}';
+var dataEl=document.getElementById('umi-data');
+var orig=dataEl.textContent;
+var S=JSON.parse(orig);
+if(!S.done)S.done={};
+/* Recurring duties: weekly = days of the week (0 Sun .. 6 Sat), monthly = day of the month */
+var ANCHOR=Date.UTC(2026,10,9);/* Monday of a glass-cleaning week */
+function wkPar(y,m,d){return ((Math.floor((Date.UTC(y,m-1,d)-ANCHOR)/604800000)%2)+2)%2}
+var RULES=[{id:'glass',title:'Glass cleaning',weekly:[3,4],phase:0},{id:'floor',title:'Floor cleaning',weekly:[3],phase:1},{id:'bottle',title:'Bottle inventory',monthly:2},{id:'linen',title:'Linen inventory',monthly:3},{id:'ose',title:'OS&E inventory',monthly:4}];
+var canEdit=false,editing=false,dirty=false,saving=false,art=null,msg='',armClear=false;
+var app=document.getElementById('app');
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function pad(n){return String(n).padStart(2,'0')}
+function todayISO(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function addDays(iso,n){var d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+n);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function fmt(iso){return iso?new Date(iso+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}):''}
+function wk(iso){return iso?new Date(iso+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short'}):''}
+function fmtN(n){return Number(n).toLocaleString('en-US')}
+function getP(p){return p.split('.').reduce(function(o,k){return o==null?o:o[k]},S)}
+function setP(p,v){var ks=p.split('.'),last=ks.pop(),o=ks.reduce(function(o,k){return o[k]},S);o[last]=v}
+function cur(){var h=location.hash.slice(1);return TABS.some(function(t){return t[0]===h})?h:'roster'}
+
+var NEW={
+  staff:function(){return {name:'',role:'',duty:'',shifts:['','','','','','','']}},
+  upsell:function(){return {date:todayISO(),item:'',staff:'',qty:'1',sales:''}},
+  trainings:function(){return {date:todayISO(),time:'',topic:'',trainer:'',notes:'',status:'pending'}},
+  tasks:function(){return {title:'',owner:'',due:'',status:'todo'}},
+  items:function(){return {name:'',desc:'',price:''}},
+  sections:function(){return {name:'New section',items:[]}},
+  info:function(){return {label:'',value:''}},
+  standards:function(){return ''}
+};
+
+function inp(path,val,o){o=o||{};
+  return '<input class="in" data-p="'+esc(path)+'"'+(o.r?' data-r="1"':'')+' type="'+(o.type||'text')+'" value="'+esc(val)+'"'+(o.ph?' placeholder="'+esc(o.ph)+'"':'')+(o.label?' aria-label="'+esc(o.label)+'"':'')+(o.id?' id="'+o.id+'"':'')+(o.mode?' inputmode="'+o.mode+'"':'')+'>';
+}
+function ta(path,val,o){o=o||{};
+  var n=Math.max(3,String(val==null?'':val).split('\n').length);
+  return '<textarea class="in" rows="'+n+'" data-p="'+esc(path)+'"'+(o.ph?' placeholder="'+esc(o.ph)+'"':'')+(o.label?' aria-label="'+esc(o.label)+'"':'')+'>'+esc(val)+'</textarea>';
+}
+function shiftHTML(v){return String(v).split('\n').map(function(l){return /^\s*vela\b/i.test(l)?'<span class="vela">'+esc(l.trim())+'</span>':esc(l.trim())}).join('\n')}
+function delBtn(list,i,label){return '<button class="btn sm del" data-act="del" data-list="'+esc(list)+'" data-i="'+i+'" aria-label="Remove '+esc(label||'row')+'">Remove</button>'}
+function addBtn(list,label){return '<button class="btn" data-act="add" data-list="'+esc(list)+'">+ '+esc(label)+'</button>'}
+function head(title,sub,extra){return '<div class="sechead"><div><h2>'+esc(title)+'</h2>'+(sub?'<p>'+esc(sub)+'</p>':'')+'</div>'+(extra||'')+'</div>'}
+
+/* ---------- Roster ---------- */
+function vRoster(){
+  var r=S.roster,t=todayISO();
+  var dates=DAYS.map(function(_,i){return addDays(r.weekOf,i)});
+  var extra=editing?'<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label class="fl" for="weekOf">Week starts <input class="in" style="width:auto" id="weekOf" type="date" data-r="1" data-p="roster.weekOf" value="'+esc(r.weekOf)+'"></label>'+addBtn('roster.staff','Add staff')+'</div>':'';
+  var h=head('Weekly roster',fmt(dates[0])+' – '+fmt(dates[6]),extra);
+  var th='<th>Staff</th>'+dates.map(function(dt,i){return '<th class="'+(dates[i]===t?'tdy':'')+'">'+wk(dt)+'<small>'+fmt(dates[i])+'</small></th>'}).join('')+(editing?'<th></th>':'');
+  var rows=r.staff.map(function(s,i){
+    var who=editing?'<td class="who">'+inp('roster.staff.'+i+'.name',s.name,{ph:'Name',label:'Staff name'})+'<div style="height:4px"></div>'+inp('roster.staff.'+i+'.role',s.role,{ph:'Role',label:'Role'})+'</td>'
+      :'<td class="who"><b>'+esc(s.name)+'</b><span>'+esc(s.role)+'</span></td>';
+    var cells=DAYS.map(function(d,k){
+      var v=s.shifts[k]||'';var tdy=dates[k]===t?' tdy':'';
+      if(editing)return '<td class="sh'+tdy+'">'+ta('roster.staff.'+i+'.shifts.'+k,v,{ph:'OFF or times',label:s.name+' '+wk(dates[k])+' duty times, one per line'})+'</td>';
+      var off=!v||/^off$/i.test(v.trim());
+      var on=/^on$/i.test(v.trim());
+      return '<td class="sh'+(off?' off':' on')+tdy+'">'+(off?'OFF':shiftHTML(v))+'</td>';
+    }).join('');
+    return '<tr>'+who+cells+(editing?'<td>'+delBtn('roster.staff',i,s.name||'staff')+'</td>':'')+'</tr>';
+  }).join('');
+  if(!r.staff.length)return h+'<p class="empty">No staff on this roster yet.'+(editing?'':' It will appear here once added.')+'</p>';
+  return h+'<div class="scroll"><table class="roster"><thead><tr>'+th+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+/* ---------- Upselling ---------- */
+function upStats(){
+  var rows=S.upsell;
+  var q=0,s=0,byS={},byI={};
+  rows.forEach(function(r){var qq=+r.qty||0,ss=+r.sales||0;q+=qq;s+=ss;var k=(r.staff||'').trim()||'Unassigned';byS[k]=(byS[k]||0)+ss;var it=(r.item||'').trim();if(it)byI[it]=(byI[it]||0)+qq});
+  var top=Object.keys(byI).sort(function(a,b){return byI[b]-byI[a]})[0];
+  var h='<div class="stats"><div><b>'+fmtN(q)+'</b><span>items sold</span></div><div><b>$'+fmtN(s)+'</b><span>total sales</span></div><div><b>'+esc(top||'–')+'</b><span>top item by quantity</span></div></div>';
+  var names=Object.keys(byS).sort(function(a,b){return byS[b]-byS[a]});
+  var max=Math.max(1,Math.max.apply(null,names.map(function(n){return byS[n]})));
+  if(names.length)h+='<div class="bars"><h3>Sales by staff</h3>'+names.map(function(n){return '<div class="bar"><span>'+esc(n)+'</span><div><i style="width:'+Math.max(2,Math.round(byS[n]/max*100))+'%"></i></div><span>$'+fmtN(byS[n])+'</span></div>'}).join('')+'</div>';
+  return h;
+}
+function vUpsell(){
+  var h=head('Upselling records','',editing?addBtn('upsell','Add record'):'');
+  var list=S.upsell.map(function(x,i){return {x:x,i:i}});
+  if(!editing)list.sort(function(a,b){return (b.x.date||'').localeCompare(a.x.date||'')});
+  var body=list.map(function(o){var x=o.x,i=o.i,p='upsell.'+i+'.';
+    if(editing)return '<tr><td>'+inp(p+'date',x.date,{type:'date',label:'Date'})+'</td><td>'+inp(p+'item',x.item,{ph:'Item',label:'Item'})+'</td><td>'+inp(p+'staff',x.staff,{ph:'Staff',label:'Staff'})+'</td><td>'+inp(p+'qty',x.qty,{mode:'numeric',label:'Quantity'})+'</td><td>'+inp(p+'sales',x.sales,{mode:'decimal',ph:'Sales ($)',label:'Sales in dollars'})+'</td><td>'+delBtn('upsell',i,'record')+'</td></tr>';
+    return '<tr><td>'+fmt(x.date)+'</td><td>'+esc(x.item)+'</td><td>'+esc(x.staff)+'</td><td class="num">'+esc(x.qty)+'</td><td class="num">'+(x.sales===''?'':'$'+fmtN(+x.sales||0))+'</td></tr>';
+  }).join('');
+  var tbl=S.upsell.length?'<div class="scroll"><table><thead><tr><th>Date</th><th>Item</th><th>Staff</th><th class="num">Qty</th><th class="num">Sales</th>'+(editing?'<th></th>':'')+'</tr></thead><tbody>'+body+'</tbody></table></div>':'<p class="empty">No upselling records yet.</p>';
+  return h+'<div id="upstats">'+upStats()+'</div>'+tbl;
+}
+
+/* ---------- Training ---------- */
+function tstat(x){return x.status==='completed'?'completed':'pending'}
+function vTraining(){
+  var mname=S.trainMonth?new Date(S.trainMonth+'-01T00:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'}):'';
+  var done=S.trainings.filter(function(x){return tstat(x)==='completed'}).length;
+  var extra=editing?'<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label class="fl" for="tm">Month <input class="in" style="width:auto" id="tm" type="month" data-r="1" data-p="trainMonth" value="'+esc(S.trainMonth)+'"></label>'+addBtn('trainings','Add training')+'</div>':'';
+  var h=head('Trainings',mname+' · '+done+' completed, '+(S.trainings.length-done)+' pending',extra);
+  var list=S.trainings.map(function(x,i){return {x:x,i:i}});
+  if(!editing)list.sort(function(a,b){return (a.x.date||'').localeCompare(b.x.date||'')});
+  if(!list.length)return h+'<p class="empty">No trainings added for this month yet.</p>';
+  var rows=list.map(function(o){var x=o.x,i=o.i,p='trainings.'+i+'.',s=tstat(x),c=s==='completed';
+    var chip='<span class="chip '+(c?'ok':'pend')+'">'+(c?'Completed':'Pending')+'</span>';
+    var btn=canEdit?' <button class="btn sm" data-act="tstatus" data-i="'+i+'">'+(c?'Mark pending':'Mark completed')+'</button>':'';
+    if(editing)return '<tr><td>'+inp(p+'date',x.date,{type:'date',label:'Date'})+'</td><td>'+inp(p+'time',x.time,{ph:'Time',label:'Time'})+'</td><td>'+inp(p+'topic',x.topic,{ph:'Topic',label:'Topic'})+'</td><td>'+inp(p+'trainer',x.trainer,{ph:'Trainer',label:'Trainer'})+'</td><td>'+inp(p+'notes',x.notes,{ph:'Notes',label:'Notes'})+'</td><td class="stc">'+chip+btn+'</td><td>'+delBtn('trainings',i,'training')+'</td></tr>';
+    return '<tr class="'+(c?'tdone':'')+'"><td class="dcell">'+fmt(x.date)+'<small>'+wk(x.date)+'</small></td><td class="tm">'+esc(x.time)+'</td><td class="topic">'+esc(x.topic)+'</td><td>'+esc(x.trainer)+'</td><td class="notes">'+esc(x.notes)+'</td><td class="stc">'+chip+btn+'</td></tr>';
+  }).join('');
+  return h+'<div class="scroll"><table class="tsheet"><thead><tr><th>Date</th><th>Time</th><th>Training</th><th>Trainer</th><th>Notes</th><th>Status</th>'+(editing?'<th></th>':'')+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+/* ---------- Checklist (current month only) ---------- */
+function monthItems(){
+  var t=todayISO(),y=+t.slice(0,4),m=+t.slice(5,7),last=new Date(y,m,0).getDate(),out=[];
+  for(var d=1;d<=last;d++){
+    var iso=y+'-'+pad(m)+'-'+pad(d),dow=new Date(y,m-1,d).getDay();
+    RULES.forEach(function(r){
+      if((r.weekly&&r.weekly.indexOf(dow)>-1&&wkPar(y,m,d-(dow+6)%7)===r.phase)||r.monthly===d)out.push({k:r.id+'|'+iso,title:r.title,date:iso,monthly:!!r.monthly});
+    });
+  }
+  return out;
+}
+function vChecklist(){
+  var t=todayISO(),items=monthItems();
+  var done=items.filter(function(i){return S.done[i.k]}).length;
+  var mname=new Date(t.slice(0,7)+'-01T00:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  var pct=items.length?Math.round(done/items.length*100):0;
+  var rows=items.map(function(i){
+    var isDone=!!S.done[i.k],late=!isDone&&i.date<t,today=i.date===t;
+    var chip=isDone?'<span class="chip ok">Done</span>':(late?'<span class="chip bad">Overdue</span>':(today?'<span class="chip today">Today</span>':'<span class="chip up">Upcoming</span>'));
+    var btn=canEdit?'<button class="btn sm tick'+(isDone?' on':'')+'" data-act="tick" data-k="'+esc(i.k)+'" aria-pressed="'+isDone+'">'+(isDone?'Undo':'Mark done')+'</button>':'';
+    return '<li class="ck'+(isDone?' fin':'')+(today?' now':'')+'"><div class="dt"><b>'+(+i.date.slice(8,10))+'</b><span>'+wk(i.date)+'</span></div><div class="ctitle"><b>'+esc(i.title)+'</b><span>'+(i.monthly?'Monthly':'Every 2 weeks')+'</span></div><div class="cact">'+chip+btn+'</div></li>';
+  }).join('');
+  return head('Checklist',mname+' · '+done+' of '+items.length+' done','')+
+    '<div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="width:'+pct+'%"></i></div>'+
+    '<ul class="clist">'+rows+'</ul>';
+}
+
+/* ---------- Tasks ---------- */
+function vTasks(){
+  var t=todayISO();
+  var h=head('Other tasks','Move a task between columns by changing its status',editing?addBtn('tasks','Add task'):'');
+  var cols=COLS.map(function(c){
+    var k=c[0],items=S.tasks.map(function(x,i){return {x:x,i:i}}).filter(function(o){return o.x.status===k});
+    var cards=items.map(function(o){var x=o.x,i=o.i,p='tasks.'+i+'.';
+      if(editing)return '<div class="card"><div class="ed">'+inp(p+'title',x.title,{ph:'Task',label:'Task'})+inp(p+'owner',x.owner,{ph:'Owner',label:'Owner'})+inp(p+'due',x.due,{type:'date',label:'Due date'})+'<select class="in" data-r="1" data-p="'+p+'status" aria-label="Status">'+COLS.map(function(cc){return '<option value="'+cc[0]+'"'+(cc[0]===x.status?' selected':'')+'>'+cc[1]+'</option>'}).join('')+'</select>'+delBtn('tasks',i,'task')+'</div></div>';
+      var late=x.due&&x.due<t&&x.status!=='done';
+      var meta=[x.owner?esc(x.owner):'',x.due?(late?'<span class="late">Overdue · '+fmt(x.due)+'</span>':'Due '+fmt(x.due)):''].filter(Boolean).join(' · ');
+      return '<div class="card"><b>'+esc(x.title)+'</b>'+(meta?'<span class="m">'+meta+'</span>':'')+'</div>';
+    }).join('')||'<p class="empty">Nothing here</p>';
+    return '<section class="col '+k+'"><h3>'+c[1]+' <span class="count">'+items.length+'</span></h3>'+cards+'</section>';
+  }).join('');
+  return vChecklist()+h+'<div class="board">'+cols+'</div>';
+}
+
+/* ---------- Menu ---------- */
+function vMenu(){
+  var secs=S.menu.sections;
+  var h=head('Menus','Three courses, à la carte',editing?addBtn('menu.sections','Add section'):'');
+  if(!secs.length)return h+'<p class="empty">The menu has not been added yet.</p>';
+  return h+'<div class="menugrid">'+secs.map(function(s,si){var sp='menu.sections.'+si+'.';
+    var title=editing?'<div style="display:flex;gap:8px">'+inp(sp+'name',s.name,{label:'Section name'})+delBtn('menu.sections',si,'section')+'</div>':'<h3>'+esc(s.name)+'</h3>';
+    var items=s.items.map(function(it,ii){var ip=sp+'items.'+ii+'.';
+      if(editing)return '<li class="ed">'+inp(ip+'name',it.name,{ph:'Dish',label:'Dish'})+inp(ip+'desc',it.desc,{ph:'Description',label:'Description'})+inp(ip+'price',it.price,{ph:'Price',label:'Price'})+delBtn(sp+'items',ii,'dish')+'</li>';
+      return '<li><div class="mi"><b>'+esc(it.name)+'</b><span class="lead"></span><span class="pr">'+esc(it.price)+'</span></div>'+(it.desc?'<p>'+esc(it.desc)+'</p>':'')+'</li>';
+    }).join('');
+    return '<section class="msec">'+title+'<ul>'+items+'</ul>'+(editing?addBtn(sp+'items','Add dish'):'')+'</section>';
+  }).join('')+'</div>';
+}
+
+/* ---------- Info ---------- */
+function vInfo(){
+  var h=head('Outlet information','Reference for the team',editing?addBtn('info','Add detail'):'');
+  var kv=S.info.map(function(r,i){var p='info.'+i+'.';
+    if(editing)return '<dt class="ed">'+inp(p+'label',r.label,{ph:'Label',label:'Label'})+'</dt><dd class="ed">'+inp(p+'value',r.value,{ph:'Value',label:'Value'})+delBtn('info',i,'detail')+'</dd>';
+    return '<dt>'+esc(r.label)+'</dt><dd>'+esc(r.value)+'</dd>';
+  }).join('');
+  var std=S.standards.map(function(s,i){
+    if(editing)return '<li><div class="ed">'+inp('standards.'+i,s,{ph:'Standard',label:'CCR standard'})+delBtn('standards',i,'standard')+'</div></li>';
+    return '<li>'+esc(s)+'</li>';
+  }).join('');
+  return h+(S.info.length?'<dl class="kv">'+kv+'</dl>':'<p class="empty">No details added yet.</p>')+
+    '<section class="std"><h3>CCR standards</h3>'+(S.standards.length?'<ul>'+std+'</ul>':'<p class="empty">No standards added yet.</p>')+(editing?'<div>'+addBtn('standards','Add standard')+'</div>':'')+'</section>';
+}
+
+var VIEWS={roster:vRoster,upselling:vUpsell,training:vTraining,tasks:vTasks};
+
+/* ---------- Shell ---------- */
+function barHTML(){
+  var st=saving?'Saving…':(msg||(dirty?'You have unsaved changes':'No changes yet'));
+  return '<div class="editbar"><span class="st" role="status">'+esc(st)+'</span><div class="acts">'+
+    (editing&&S.sample?'<button class="btn" data-act="clear">'+(armClear?'Click again to clear everything':'Clear sample data')+'</button><button class="btn" data-act="unsample">Hide sample label</button>':'')+
+    (dirty?'<button class="btn" data-act="discard">Discard</button>':'')+
+    '<button class="btn primary" data-act="save"'+((!dirty||saving)?' disabled':'')+'>Save changes</button></div></div>';
+}
+function renderBar(){var b=document.getElementById('bar');if(b)b.innerHTML=(editing||dirty)?barHTML():''}
+function render(){
+  var v=cur();
+  var nav=TABS.map(function(t){return '<a href="#'+t[0]+'"'+(t[0]===v?' aria-current="page"':'')+'>'+t[1]+'</a>'}).join('');
+  var right=(S.sample?'<span class="chip sample">Sample content</span>':'')+(canEdit?'<button class="btn '+(editing?'':'primary')+'" data-act="edit">'+(editing?'Done editing':'Edit page')+'</button>':'');
+  app.innerHTML='<header class="band"><div class="wrap bandin"><div class="brand"><span class="kanji" aria-hidden="true">海</span><div><h1>Umi</h1></div></div><div class="bandr">'+right+'</div></div><div class="wrap"><nav class="tabs" aria-label="Sections">'+nav+'</nav></div></header>'+
+    '<main class="wrap main'+((editing||dirty)?' pad-bar':'')+'">'+VIEWS[v]()+'<p class="foot">Last updated '+esc(S.meta.updated?fmt(S.meta.updated)+' '+S.meta.updated.slice(0,4):'')+'</p></main><div id="bar">'+((editing||dirty)?barHTML():'')+'</div>';
+}
+
+/* ---------- Saving ---------- */
+function buildDoc(){
+  var style=document.getElementById('app-style').textContent;
+  var script=document.getElementById('app-script').textContent;
+  var fonts=document.querySelector('link[rel="stylesheet"]');
+  var json=JSON.stringify(S).replace(/</g,'\\u003c');
+  return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>'+RESET+'</style></head><body>'+
+    '<title>Umi Outlet Hub</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n'+
+    '<link rel="stylesheet" href="'+(fonts?fonts.getAttribute('href'):'')+'">\n'+
+    '<style id="app-style">'+style+'</style>\n<div id="app"></div>\n'+
+    '<script type="application/json" id="umi-data">'+json+'<\/script>\n'+
+    '<script id="app-script">'+script+'<\/script></body></html>';
+}
+async function save(){
+  if(saving||!dirty||!art)return;
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+  saving=true;msg='';renderBar();
+  S.meta.updated=todayISO();
+  try{await art.publish(buildDoc())}
+  catch(err){
+    saving=false;
+    var c=err&&err.code;
+    if(c==='conflict')msg='Someone saved a newer version first. Reloading…';
+    else if(['not_writer','not_granted','consent_required','not_declared'].indexOf(c)>-1){canEdit=false;editing=false;msg='';}
+    else msg='Save did not go through. Check your connection and try again.';
+    render();
+  }
+}
+
+/* ---------- Events ---------- */
+app.addEventListener('input',function(e){
+  var t=e.target,p=t.dataset&&t.dataset.p;if(!p||t.dataset.r)return;
+  if(t.tagName==='TEXTAREA')t.rows=Math.max(3,t.value.split('\n').length);
+  setP(p,t.value);dirty=true;msg='';
+  if(p.indexOf('upsell.')===0){var u=document.getElementById('upstats');if(u)u.innerHTML=upStats()}
+  renderBar();
+});
+app.addEventListener('change',function(e){
+  var t=e.target,p=t.dataset&&t.dataset.p;if(!p||!t.dataset.r)return;
+  if(p==='roster.weekOf'&&!t.value)return;
+  setP(p,t.value);dirty=true;msg='';render();
+});
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]');if(!b)return;
+  var a=b.dataset.act;
+  if(a==='edit'){editing=!editing;armClear=false;msg='';render();return}
+  if(a==='add'){var l=getP(b.dataset.list);var key=b.dataset.list.split('.').pop();if(l&&NEW[key]){l.push(NEW[key]());dirty=true;msg='';render()}return}
+  if(a==='del'){var l2=getP(b.dataset.list);if(l2){l2.splice(+b.dataset.i,1);dirty=true;msg='';render()}return}
+  if(a==='tstatus'){var tx=S.trainings[+b.dataset.i];if(tx){tx.status=tstat(tx)==='completed'?'pending':'completed';dirty=true;msg='';render()}return}
+  if(a==='tick'){var k=b.dataset.k;if(S.done[k])delete S.done[k];else S.done[k]=true;dirty=true;msg='';render();return}
+  if(a==='save'){save();return}
+  if(a==='discard'){S=JSON.parse(orig);dirty=false;msg='';armClear=false;render();return}
+  if(a==='unsample'){S.sample=false;dirty=true;render();return}
+  if(a==='clear'){
+    if(!armClear){armClear=true;renderBar();return}
+    armClear=false;S.sample=false;
+    S.roster.staff=[];S.upsell=[];S.trainings=[];S.tasks=[];S.standards=[];
+    S.menu.sections.forEach(function(s){s.items=[]});
+    S.info.forEach(function(r){r.value=''});
+    dirty=true;render();return;
+  }
+});
+window.addEventListener('hashchange',function(){armClear=false;render();window.scrollTo(0,0)});
+
+/* ---------- Start ---------- */
+render();
+})();
+</script>
+</body></html>
